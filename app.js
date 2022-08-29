@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
+// eslint-disable-next-line no-undef
 const { PORT = 3000 } = process.env;
-
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
