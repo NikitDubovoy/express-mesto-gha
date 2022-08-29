@@ -21,8 +21,5 @@ app.use((req, res, next) => {
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 
-// передадим обработчик
 app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
-  console.log(`App listening on port ${PORT}`);
 });
