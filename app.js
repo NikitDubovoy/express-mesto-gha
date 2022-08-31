@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const Error = require('./utils');
+const Error = require('./utils/utils');
 
 // eslint-disable-next-line no-undef
 const { PORT = 3000 } = process.env;

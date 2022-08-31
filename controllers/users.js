@@ -1,80 +1,72 @@
 const User = require('../models/user');
-const Error = require('../utils');
+const Error = require('../utils/utils');
 
-const createdUser = async (req, res) => {
+const createdUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  try {
-    if ((name || name.length >= 2 < 20) || (about || about.length >= 2 < 20) || (avatar)) {
-      User.create({ name, about, avatar });
-      Error.isSuccess(res, 'Create user');
-    } else {
-      Error.isCastError(res);
-      return;
-    }
-  } catch (e) {
-    Error.isServerError(res);
-  }
-};
-
-const getUsers = async (req, res) => {
-  const user = await User.find({});
-  try {
-    Error.isSuccess(res, user);
-  } catch (e) {
-    Error.isServerError(res);
-  }
-};
-
-const getUserId = async (req, res) => {
-  const { userId } = req.params;
-  try {
-    User.findById({ _id: userId }, (err, user) => {
-      if (err) {
-        const isNotFound = err.message.indexOf('not found');
-        const isCastError = err.message.indexOf('Cast to ObjectId failed');
-        if (err.message && (isNotFound || isCastError)) {
-          Error.isCastError(res);
-        }
+  User.create({ name, about, avatar })
+    .then((user) => Error.isSuccess(res, user))
+    .catch((e) => {
+      if (e.name === 'ValidationError') {
+        Error.isCastError(res, e.message);
+        return;
       }
-      if (!user) {
+      Error.isServerError(res, e);
+    });
+};
+
+const getUsers = (req, res) => {
+  User.find({})
+    .then((user) => Error.isSuccess(res, user))
+    .catch((e) => Error.isServerError(res, e));
+};
+
+const getUserId = (req, res) => {
+  const { userId } = req.params;
+  User.findById({ _id: userId })
+    .then((user) => Error.isSuccess(res, user))
+    .catch((e) => {
+      if (e.name === 'CastError') {
+        Error.isCastError(res);
+        return;
+      }
+      Error.isServerError(res, e);
+    });
+};
+
+const updateUser = (req, res) => {
+  const { about, name } = req.body;
+  const { _id } = req.user;
+  User.findByIdAndUpdate(_id, { about, name })
+    .then((user) => Error.isSuccess(res, user))
+    .catch((e) => {
+      if (e.name === 'ValidationError') {
+        Error.isCastError(res);
+        return;
+      }
+      if (e.name === 'CastError') {
         Error.isNotFound(res);
         return;
       }
-      Error.isSuccess(res, user);
+      Error.isServerError(res, e);
     });
-  } catch (e) {
-    Error.isServerError(res);
-  }
 };
 
-const updateUser = async (req, res) => {
-  const { about, name } = req.body;
-  const { _id } = req.user;
-  try {
-    if (!(name.length >= 2 < 20) || !(about.length >= 2 < 20)) {
-      Error.isCastError(res);
-      return;
-    }
-    // eslint-disable-next-line no-unused-vars
-    const user = await User.findByIdAndUpdate(_id, { about, name });
-    Error.isSuccess(res, 'Update info user');
-  } catch (e) {
-    Error.isServerError(res);
-  }
-};
-
-const updateAvatar = async (req, res) => {
+const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const { _id } = req.user;
-  try {
-    const user = await User.findByIdAndUpdate(_id, { avatar });
-    if (!user) {
-      Error.isNotFound(res);
-    }
-    Error.isSuccess(res, user);
-  } catch (e) {
-    Error.isServerError(res);
-  }
+  User.findByIdAndUpdate(_id, { avatar })
+    .then((user) => Error.isSuccess(res, user))
+    .catch((e) => {
+      if (e.name === 'ValidationError') {
+        Error.isCastError(res);
+        return;
+      }
+      if (e.name === 'CastError') {
+        Error.isNotFound(res);
+        return;
+      }
+      Error.isServerError(res, e);
+    });
 };
 
 module.exports = {
