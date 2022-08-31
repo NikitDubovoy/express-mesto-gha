@@ -1,21 +1,27 @@
 const User = require('../models/user');
+const Error = require('../utils');
 
-const createdUser = (req, res) => {
+const createdUser = async (req, res) => {
   const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar });
   try {
-    res.status(200).send(req.body);
+    if ((name || name.length >= 2 < 20) || (about || about.length >= 2 < 20) || (avatar)) {
+      User.create({ name, about, avatar });
+      Error.isSuccess(res, 'Create user');
+    } else {
+      Error.isCastError(res);
+      return;
+    }
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    Error.isServerError(res);
   }
 };
 
 const getUsers = async (req, res) => {
   const user = await User.find({});
   try {
-    res.status(200).send(user);
+    Error.isSuccess(res, user);
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    Error.isServerError(res);
   }
 };
 
@@ -23,18 +29,21 @@ const getUserId = async (req, res) => {
   const { userId } = req.params;
   try {
     User.findById({ _id: userId }, (err, user) => {
+      if (err) {
+        const isNotFound = err.message.indexOf('not found');
+        const isCastError = err.message.indexOf('Cast to ObjectId failed');
+        if (err.message && (isNotFound || isCastError)) {
+          Error.isCastError(res);
+        }
+      }
       if (!user) {
-        res.status(404).send('User not found');
+        Error.isNotFound(res);
         return;
       }
-      if (userId === 'ObjectId') {
-        res.status(400).send({ message: err.message }, 'No valid ID');
-        return;
-      }
-      res.status(200).send(user);
+      Error.isSuccess(res, user);
     });
   } catch (e) {
-    res.status(500).send({ message: e.message }, 'Server error');
+    Error.isServerError(res);
   }
 };
 
@@ -42,18 +51,15 @@ const updateUser = async (req, res) => {
   const { about, name } = req.body;
   const { _id } = req.user;
   try {
-    if (about === '' || name === '') {
-      res.status(400).send('No valid data');
+    if (!(name.length >= 2 < 20) || !(about.length >= 2 < 20)) {
+      Error.isCastError(res);
       return;
     }
+    // eslint-disable-next-line no-unused-vars
     const user = await User.findByIdAndUpdate(_id, { about, name });
-    if (!user) {
-      req.status(404).send('User not found');
-      return;
-    }
-    res.status(200).send(user);
+    Error.isSuccess(res, 'Update info user');
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    Error.isServerError(res);
   }
 };
 
@@ -63,11 +69,11 @@ const updateAvatar = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(_id, { avatar });
     if (!user) {
-      req.status(404).send('User not found');
+      Error.isNotFound(res);
     }
-    res.status(200).send(user);
+    Error.isSuccess(res, user);
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    Error.isServerError(res);
   }
 };
 

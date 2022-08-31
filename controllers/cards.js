@@ -1,29 +1,34 @@
 const Card = require('../models/card');
+const Error = require('../utils');
 
-const createdCard = (req, res) => {
+const createdCard = async (req, res) => {
   const {
-    name, link, likes, createdAt,
+    name, link, owner, likes, createdAt,
   } = req.body;
   try {
     if (name === '' || link === '') {
-      res.status(400).send('No valid data');
+      Error.isCastError(res);
       return;
     }
     Card.create({
       name, link, owner: req.user._id, likes, createdAt,
     });
-    res.status(200).send(req.body);
+    Error.isSuccess(res, req.body);
+    if ((!name || name.length >= 2 < 20) || (!link) || (owner !== req.user._id)) {
+      Error.isCastError(res);
+      return;
+    }
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    Error.isServerError(res);
   }
 };
 
 async function getCard(req, res) {
   const card = await Card.find({});
   try {
-    res.status(200).send(card);
+    Error.isSuccess(res, card);
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    Error.isServerError(res);
   }
 }
 
@@ -32,18 +37,14 @@ const removeCard = async (req, res) => {
   try {
     Card.findById({ _id: cardId }, (err, card) => {
       if (!card) {
-        res.status(404).send('Card not found');
+        Error.isNotFound(res);
         return;
       }
       card.remove();
-      res.status(200).send('OK, Card deleted');
+      Error.isSuccess(res, card);
     });
   } catch (err) {
-    if (err.kind === 'ObjectId') {
-      res.status(400).send({ message: err.message }, 'No valid ID');
-      return;
-    }
-    res.status(500).send({ message: err.message }, 'Server error');
+    Error.isServerError(res);
   }
 };
 
@@ -56,12 +57,17 @@ const likeCard = async (req, res) => {
       { new: true },
     );
     if (!card) {
-      req.status(404).send('Card not found');
+      Error.isNotFound(res);
       return;
     }
-    res.status(200).send('OK, Add like');
+    Error.isSuccess(res, 'OK, Add like');
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    Error.isServerError(res);
+    const isNotFound = err.message.indexOf('not found');
+    const isCastError = err.message.indexOf('Cast to ObjectId failed');
+    if (err.message && (isNotFound || isCastError)) {
+      Error.isNotFound(res);
+    }
   }
 };
 
@@ -74,12 +80,17 @@ const dislikeCard = async (req, res) => {
       { new: true },
     );
     if (!card) {
-      req.status(404).send('Card not found');
+      Error.isNotFound(res);
       return;
     }
-    res.status(200).send('OK, Deleted like');
+    Error.isSuccess(res, 'OK, Deleted like');
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    const isNotFound = err.message.indexOf('not found');
+    const isCastError = err.message.indexOf('Cast to ObjectId failed');
+    if (err.message && (isNotFound || isCastError)) {
+      Error.isNotFound(res);
+    }
+    Error.isServerError(res);
   }
 };
 
