@@ -31,10 +31,6 @@ const getUserId = (req, res) => {
       Error.isSuccess(res, user);
     })
     .catch((e) => {
-      if (userId !== 'ObjectId') {
-        Error.isCastError(res, 'Cast to ObjectId failed');
-        return;
-      }
       Error.isServerError(res, e);
     });
 };
@@ -44,6 +40,10 @@ const updateUser = (req, res) => {
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { about, name }, { new: true, runValidators: true })
     .then((user) => {
+      if (!user) {
+        Error.isNotFound(res);
+        return;
+      }
       Error.isSuccess(res, user);
     })
     .catch((e) => {
@@ -63,7 +63,13 @@ const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then((user) => Error.isSuccess(res, user))
+    .then((user) => {
+      if (!user) {
+        Error.isNotFound(res);
+        return;
+      }
+      Error.isSuccess(res, user);
+    })
     .catch((e) => {
       if (e.name === 'ValidationError') {
         Error.isCastError(res);

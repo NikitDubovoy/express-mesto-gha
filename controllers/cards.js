@@ -32,30 +32,27 @@ const getCard = (req, res) => {
 
 const removeCard = (req, res) => {
   const { cardId } = req.params;
-  Card.findById({ _id: cardId })
-    .then((card) => {
-      if (!card) {
-        Error.isNotFound(res);
-        return;
-      }
-      card.remove();
-      Error.isSuccess(res, card);
-    })
-    .catch((e) => {
-      if (cardId !== 'ObjectId') {
-        Error.isCastError(res, 'Cast to ObjectId failed');
-        return;
-      }
-      if (e.name === 'ValidationError') {
-        Error.isCastError(res, e.name);
-        return;
-      }
-      if (e.name === 'CastError') {
-        Error.isNotFound(res, e.name);
-        return;
-      }
-      Error.isServerError(res, e);
-    });
+  Card.findById({ _id: cardId }, (card) => {
+    card.remove()
+      .then((dataCard) => {
+        if (!dataCard) {
+          Error.isNotFound(res);
+          return;
+        }
+        Error.isSuccess(res, dataCard);
+      })
+      .catch((e) => {
+        if (e.name === 'ValidationError') {
+          Error.isCastError(res, e.name);
+          return;
+        }
+        if (e.name === 'CastError') {
+          Error.isNotFound(res, e.name);
+          return;
+        }
+        Error.isServerError(res, e);
+      });
+  });
 };
 
 const likeCard = (req, res) => {
