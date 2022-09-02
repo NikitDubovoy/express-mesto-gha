@@ -31,6 +31,10 @@ const getUserId = (req, res) => {
       Error.isSuccess(res, user);
     })
     .catch((e) => {
+      if (e.name === 'CastError') {
+        Error.isNotFound(res);
+        return;
+      }
       Error.isServerError(res, e);
     });
 };
