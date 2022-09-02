@@ -47,7 +47,7 @@ const removeCard = (req, res) => {
         return;
       }
       if (err.name === 'CastError') {
-        Error.isCastError(res, err);
+        Error.isCastError(res, err.name);
         return;
       }
       Error.isServerError(res, err);
