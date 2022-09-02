@@ -32,12 +32,8 @@ const getCard = (req, res) => {
 
 const removeCard = (req, res) => {
   const { cardId } = req.params;
-  Card.findById({ _id: cardId }, (card) => {
-    if (!card) {
-      if (!card) {
-        Error.isNotFound(res);
-      }
-    } else {
+  Card.findById({ _id: cardId }, (err, card) => {
+    if (card) {
       card.remove()
         .then((dataCard) => {
           Error.isSuccess(res, dataCard);
@@ -53,6 +49,8 @@ const removeCard = (req, res) => {
           }
           Error.isServerError(res, e);
         });
+    } else {
+      Error.isSuccess(res, err.name);
     }
   });
 };
