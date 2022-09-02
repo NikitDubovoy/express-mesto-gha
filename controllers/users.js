@@ -32,7 +32,7 @@ const getUserId = (req, res) => {
     })
     .catch((e) => {
       if (e.name === 'CastError') {
-        Error.isNotFound(res);
+        Error.isCastError(res);
         return;
       }
       Error.isServerError(res, e);

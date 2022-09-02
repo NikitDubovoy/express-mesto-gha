@@ -33,25 +33,27 @@ const getCard = (req, res) => {
 const removeCard = (req, res) => {
   const { cardId } = req.params;
   Card.findById({ _id: cardId }, (card) => {
-    card.remove()
-      .then((dataCard) => {
-        if (!dataCard) {
-          Error.isNotFound(res);
-          return;
-        }
-        Error.isSuccess(res, dataCard);
-      })
-      .catch((e) => {
-        if (e.name === 'ValidationError') {
-          Error.isCastError(res, e.name);
-          return;
-        }
-        if (e.name === 'CastError') {
-          Error.isNotFound(res, e.name);
-          return;
-        }
-        Error.isServerError(res, e);
-      });
+    if (!card) {
+      if (!card) {
+        Error.isNotFound(res);
+      }
+    } else {
+      card.remove()
+        .then((dataCard) => {
+          Error.isSuccess(res, dataCard);
+        })
+        .catch((e) => {
+          if (e.name === 'ValidationError') {
+            Error.isCastError(res, e.name);
+            return;
+          }
+          if (e.name === 'CastError') {
+            Error.isNotFound(res, e.name);
+            return;
+          }
+          Error.isServerError(res, e);
+        });
+    }
   });
 };
 
