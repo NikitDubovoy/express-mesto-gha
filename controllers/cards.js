@@ -39,18 +39,18 @@ const removeCard = (req, res) => {
           Error.isSuccess(res, dataCard);
         })
         .catch((e) => {
-          if (e.name === 'ValidationError') {
-            Error.isCastError(res, e.name);
-            return;
-          }
-          if (e.name === 'CastError') {
-            Error.isNotFound(res, e.name);
-            return;
-          }
           Error.isServerError(res, e);
         });
     } else {
-      Error.isSuccess(res, err.name);
+      if (err === null) {
+        Error.isNotFound(res);
+        return;
+      }
+      if (err.name === 'CastError') {
+        Error.isCastError(res, err);
+        return;
+      }
+      Error.isServerError(res, err);
     }
   });
 };
