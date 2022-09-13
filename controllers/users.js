@@ -10,10 +10,12 @@ const createdUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  if (!validator.isEmail(email)) {
+  if (!validator.isEmail(email) && (!email)) {
     Error.invalidEmail(res);
   } else if (!isAvatarValidator(avatar)) {
     Error.invalidAvatar(res);
+  } else if (!password) {
+    Error.invalidPassword(res);
   } else {
     bcrypt.hash(password, 10)
       .then((hashPassword) => {
@@ -132,8 +134,8 @@ const login = (req, res) => {
               Error.invalidData(res);
             }
           })
-          .catch(() => {
-            Error.isServerError(res);
+          .catch((e) => {
+            Error.isServerError(res, e);
           });
       });
   } else {

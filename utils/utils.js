@@ -13,11 +13,11 @@ const isSuccess = (res, data) => {
 };
 
 const invalidEmail = (res) => {
-  res.status(403).send({ message: 'invalid email' });
+  res.status(400).send({ message: 'invalid email' });
 };
 
 const invalidPassword = (res) => {
-  res.status(403).send({ message: 'invalid Password' });
+  res.status(400).send({ message: 'invalid Password' });
 };
 
 const invalidData = (res) => {
@@ -29,7 +29,7 @@ const invalidAuth = (res) => {
 };
 
 const invalidAvatar = (res) => {
-  res.status(401).send({ message: 'invalid Avatar' });
+  res.status(400).send({ message: 'invalid Avatar' });
 };
 
 module.exports = {
