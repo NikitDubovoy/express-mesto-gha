@@ -36,6 +36,14 @@ const invalidAvatar = (res) => {
   res.status(400).send({ message: 'invalid Avatar' });
 };
 
+const invalidLink = (res) => {
+  res.status(400).send({ message: 'invalid link' });
+};
+
+const invalidRemove = (res) => {
+  res.status(403).send({ message: 'The card does not belong to the user' });
+};
+
 module.exports = {
   isNotFound,
   isCastError,
@@ -47,4 +55,6 @@ module.exports = {
   invalidAuth,
   invalidAvatar,
   isEmail,
+  invalidLink,
+  invalidRemove,
 };

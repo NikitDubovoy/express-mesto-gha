@@ -1,21 +1,27 @@
 const Card = require('../models/card');
 const Error = require('../utils/utils');
 
+const isLinkCard = (link) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(link);
+
 const createdCard = (req, res) => {
   const {
     name, link, likes, createdAt,
   } = req.body;
-  Card.create({
-    name, link, owner: req.user._id, likes, createdAt,
-  })
-    .then((card) => Error.isSuccess(res, card))
-    .catch((e) => {
-      if (e.name === 'ValidationError') {
-        Error.isCastError(res, e.message);
-        return;
-      }
-      Error.isServerError(res, e);
-    });
+  if (isLinkCard(link)) {
+    Card.create({
+      name, link, owner: req.user._id, likes, createdAt,
+    })
+      .then((card) => Error.isSuccess(res, card))
+      .catch((e) => {
+        if (e.name === 'ValidationError') {
+          Error.isCastError(res, e.message);
+          return;
+        }
+        Error.isServerError(res, e);
+      });
+  } else {
+    Error.invalidLink(res);
+  }
 };
 
 const getCard = (req, res) => {
@@ -33,6 +39,9 @@ const getCard = (req, res) => {
 const removeCard = (req, res) => {
   const { cardId } = req.params;
   Card.findById({ _id: cardId }, (err, card) => {
+    if (card.owner === req.user._id) {
+      Error.invalidRemove(res);
+    }
     if (card) {
       card.remove()
         .then((dataCard) => {

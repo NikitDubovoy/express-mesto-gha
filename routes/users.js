@@ -1,16 +1,21 @@
 const express = require('express');
 const { celebrate, Joi } = require('celebrate');
+Joi.objectId = require('joi-objectid')(Joi);
 
 const router = express.Router();
 const {
   getUsers, getUserId, updateUser, updateAvatar, getThisUser,
 } = require('../controllers/users');
 
-router.get('/me', express.json(), getThisUser);
+router.get('/me', express.json(), celebrate({
+  body: Joi.object().keys({
+    _id: Joi.objectId(),
+  }),
+}), getThisUser);
 router.get('/', express.json(), getUsers);
 router.get('/:userId', express.json(), celebrate({
   body: Joi.object().keys({
-    userId: Joi.string().required().min(25).max(25),
+    userId: Joi.objectId(),
   }),
 }), getUserId);
 router.patch('/me', express.json(), celebrate({

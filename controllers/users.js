@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Error = require('../utils/utils');
 
-const isAvatarValidator = (avatar) => /(\b(https?|http):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig.test(avatar);
+const isAvatarValidator = (avatar) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(avatar);
 
 const createdUser = (req, res) => {
   const {
