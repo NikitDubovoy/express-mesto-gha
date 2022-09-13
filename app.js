@@ -1,7 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const Error = require('./utils/utils');
@@ -30,7 +30,7 @@ app.use(cookieParser());
 app.use(auth, express.json());
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
-
+app.use(errors());
 app.use((req, res) => {
   Error.isNotFound(res);
 });
