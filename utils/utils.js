@@ -5,6 +5,10 @@ const isCastError = (res, data) => {
   res.status(400).send({ message: data });
 };
 
+const isEmail = (res, data) => {
+  res.status(409).send({ message: data });
+};
+
 const isServerError = (res, data) => {
   res.status(500).send({ message: data });
 };
@@ -42,4 +46,5 @@ module.exports = {
   invalidData,
   invalidAuth,
   invalidAvatar,
+  isEmail,
 };

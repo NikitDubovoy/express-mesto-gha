@@ -16,7 +16,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: false,
 });
 
-app.post('/signin', express.json(), login);
+app.post('/signin', express.json(), celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), login);
 app.post('/signup', express.json(), celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),

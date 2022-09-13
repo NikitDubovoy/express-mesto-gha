@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Error = require('../utils/utils');
 
-const isAvatarValidator = (avatar) => /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig.test(avatar);
+const isAvatarValidator = (avatar) => /(\b(https?|http):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig.test(avatar);
 
 const createdUser = (req, res) => {
   const {
@@ -29,7 +29,7 @@ const createdUser = (req, res) => {
               return;
             }
             if (e.code === 11000) {
-              Error.isCastError(res, 'The entered email exists');
+              Error.isEmail(res, 'The entered email exists');
             }
           });
       })
@@ -41,6 +41,13 @@ const createdUser = (req, res) => {
 
 const getUsers = (req, res) => {
   User.find({})
+    .then((user) => Error.isSuccess(res, user))
+    .catch((e) => Error.isServerError(res, e));
+};
+
+const getThisUser = (req, res) => {
+  const { _id } = req.user;
+  User.find({ _id })
     .then((user) => Error.isSuccess(res, user))
     .catch((e) => Error.isServerError(res, e));
 };
@@ -116,7 +123,7 @@ const login = (req, res) => {
   const { email, password } = req.body;
   if (validator.isEmail(email)) {
     User.findOne({ email }).select('+password')
-      .orFail(() => Error.isNotFound(res))
+      .orFail(() => Error.invalidData(res))
       .then((user) => {
         bcrypt.compare(password, user.password)
           .then((isUserValid) => {
@@ -134,12 +141,12 @@ const login = (req, res) => {
               Error.invalidData(res);
             }
           })
-          .catch((e) => {
-            Error.isServerError(res, e);
+          .catch(() => {
+            Error.invalidPassword(res);
           });
       });
   } else {
-    Error.invalidData(res);
+    Error.invalidEmail(res);
   }
 };
 
@@ -150,4 +157,5 @@ module.exports = {
   updateAvatar,
   updateUser,
   login,
+  getThisUser,
 };
