@@ -1,60 +1,110 @@
-const isNotFound = (res) => {
-  res.status(404).send({ message: 'Not Found' });
-};
-const isCastError = (res, data) => {
-  res.status(400).send({ message: data });
-};
+// eslint-disable-next-line max-classes-per-file
+class IsNotFound extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 404;
+  }
+}
 
-const isEmail = (res, data) => {
-  res.status(409).send({ message: data });
-};
+class IsCastError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
 
-const isServerError = (res, data) => {
-  res.status(500).send({ message: data });
-};
-const isSuccess = (res, data) => {
-  res.status(200).send({ message: data });
-};
+class IsEmail extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 409;
+  }
+}
 
-const invalidEmail = (res) => {
-  res.status(400).send({ message: 'invalid email' });
-};
+class IsServerError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 500;
+  }
+}
 
-const invalidPassword = (res) => {
-  res.status(400).send({ message: 'invalid Password' });
-};
+class IsSuccess extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 200;
+  }
+}
+class InvalidEmail extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
 
-const invalidData = (res) => {
-  res.status(401).send({ message: 'invalid password or email' });
-};
+class InvalidPassword extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
 
-const invalidAuth = (res) => {
-  res.status(401).send({ message: 'Need authorization' });
-};
+class InvalidAuth extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 401;
+  }
+}
 
-const invalidAvatar = (res) => {
-  res.status(400).send({ message: 'invalid Avatar' });
-};
+class InvalidAvatar extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
 
-const invalidLink = (res) => {
-  res.status(400).send({ message: 'invalid link' });
-};
+class InvalidLink extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
 
-const invalidRemove = (res) => {
-  res.status(403).send({ message: 'The card does not belong to the user' });
+class InvalidRemove extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 403;
+  }
+}
+
+class InvalidData extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 403;
+  }
+}
+
+const errorServer = (err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'На сервере произошла ошибка'
+      : message,
+  });
+  next(err);
 };
 
 module.exports = {
-  isNotFound,
-  isCastError,
-  isServerError,
-  isSuccess,
-  invalidEmail,
-  invalidPassword,
-  invalidData,
-  invalidAuth,
-  invalidAvatar,
-  isEmail,
-  invalidLink,
-  invalidRemove,
+  IsNotFound,
+  IsCastError,
+  IsServerError,
+  IsSuccess,
+  InvalidEmail,
+  InvalidPassword,
+  InvalidAuth,
+  InvalidAvatar,
+  IsEmail,
+  InvalidLink,
+  InvalidRemove,
+  InvalidData,
+  errorServer,
 };

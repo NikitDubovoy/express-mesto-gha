@@ -7,14 +7,10 @@ const {
   getUsers, getUserId, updateUser, updateAvatar, getThisUser,
 } = require('../controllers/users');
 
-router.get('/me', express.json(), celebrate({
-  body: Joi.object().keys({
-    _id: Joi.objectId(),
-  }),
-}), getThisUser);
+router.get('/me', express.json(), getThisUser);
 router.get('/', express.json(), getUsers);
 router.get('/:userId', express.json(), celebrate({
-  body: Joi.object().keys({
+  params: Joi.object().keys({
     userId: Joi.objectId(),
   }),
 }), getUserId);
@@ -26,7 +22,7 @@ router.patch('/me', express.json(), celebrate({
 }), updateUser);
 router.patch('/me/avatar', express.json(), celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().uri(),
+    avatar: Joi.string().required().pattern(/https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i),
   }),
 }), updateAvatar);
 

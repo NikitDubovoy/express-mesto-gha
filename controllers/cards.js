@@ -1,70 +1,62 @@
 const Card = require('../models/card');
-const Error = require('../utils/utils');
+const {
+  IsNotFound,
+  IsCastError,
+  IsServerError,
+  InvalidRemove,
+} = require('../utils/utils');
 
-const isLinkCard = (link) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(link);
+// const isLinkCard = (link) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(link);
 
-const createdCard = (req, res) => {
-  const {
-    name, link, likes, createdAt,
-  } = req.body;
-  if (isLinkCard(link)) {
-    Card.create({
-      name, link, owner: req.user._id, likes, createdAt,
-    })
-      .then((card) => Error.isSuccess(res, card))
-      .catch((e) => {
-        if (e.name === 'ValidationError') {
-          Error.isCastError(res, e.message);
-          return;
-        }
-        Error.isServerError(res, e);
-      });
-  } else {
-    Error.invalidLink(res);
-  }
-};
-
-const getCard = (req, res) => {
-  Card.find({})
-    .then((cards) => Error.isSuccess(res, cards))
+const createdCard = (req, res, next) => {
+  const { name, link } = req.body;
+  Card.create({ name, link, owner: req.user._id })
+    .then((card) => res.status(200).send(card))
     .catch((e) => {
-      if (e.name === 'CastError') {
-        Error.isCastError(res);
+      if (e.name === 'ValidationError') {
+        next(new IsCastError('Неверные данные'));
         return;
       }
-      Error.isServerError(res, e);
+      next(new IsServerError('Ошибка сервера'));
     });
 };
 
-const removeCard = (req, res) => {
-  const { cardId } = req.params;
-  Card.findById({ _id: cardId }, (err, card) => {
-    if (card.owner === req.user._id) {
-      Error.invalidRemove(res);
-    }
-    if (card) {
-      card.remove()
-        .then((dataCard) => {
-          Error.isSuccess(res, dataCard);
-        })
-        .catch((e) => {
-          Error.isServerError(res, e);
-        });
-    } else {
-      if (err === null) {
-        Error.isNotFound(res);
+const getCard = (req, res, next) => {
+  Card.find({})
+    .then((cards) => res.status(200).send(cards))
+    .catch((e) => {
+      if (e.name === 'CastError') {
+        next(new IsCastError(res));
         return;
       }
-      if (err.name === 'CastError') {
-        Error.isCastError(res, err.name);
-        return;
-      }
-      Error.isServerError(res, err);
-    }
-  });
+      next(new IsServerError('Ошибка сервера'));
+    });
 };
 
-const likeCard = (req, res) => {
+const removeCard = (req, res, next) => {
+  const { cardId } = req.params;
+  Card.findById({ _id: cardId })
+    .orFail(() => new IsNotFound('Карточка не найдена'))
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
+        next(new InvalidRemove('Карточка не была создана текущим пользователем'));
+      }
+      if (card) {
+        card.remove()
+          .then((dataCard) => {
+            res.status(200).send(dataCard);
+          })
+          .catch(() => {
+            next(new IsServerError('Ошибка сервера'));
+          });
+      }
+    })
+    .catch(() => {
+      next(new IsServerError('Ошибка сервера'));
+    });
+};
+
+const likeCard = (req, res, next) => {
   const idCard = req.params.cardId;
   Card.findByIdAndUpdate(
     idCard,
@@ -73,25 +65,25 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        Error.isNotFound(res);
+        next(new IsNotFound('Карточка не найдена'));
         return;
       }
-      Error.isSuccess(res, card);
+      res.status(200).send(card);
     })
     .catch((e) => {
       if (e.name === 'ValidationError') {
-        Error.isNotFound(res, e.message);
+        next(new IsNotFound('Карточка не найдена'));
         return;
       }
       if (e.name === 'CastError') {
-        Error.isCastError(res, e.message);
+        next(new IsCastError('Неккектный ID карточки'));
         return;
       }
-      Error.isServerError(res, e);
+      next(new IsServerError('Ошибка сервера'));
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const idCard = req.params.cardId;
   Card.findByIdAndUpdate(
     idCard,
@@ -100,21 +92,21 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        Error.isNotFound(res);
+        next(new IsNotFound('Карточка не найдена'));
         return;
       }
-      Error.isSuccess(res, card);
+      res.status(200).send(card);
     })
     .catch((e) => {
       if (e.name === 'ValidationError') {
-        Error.isNotFound(res, e.message);
+        next(new IsNotFound('Карточка не найдена'));
         return;
       }
       if (e.name === 'CastError') {
-        Error.isCastError(res, e.message);
+        next(new IsCastError('Неккектный ID карточки'));
         return;
       }
-      Error.isServerError(res, e);
+      next(new IsServerError('Ошибка сервера'));
     });
 };
 
