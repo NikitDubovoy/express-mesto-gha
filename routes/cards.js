@@ -12,22 +12,22 @@ router.post('/', express.json(), celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().pattern(/https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i),
-    owner: Joi.objectId().required(),
+    owner: Joi.objectId(),
   }),
 }), createdCard);
 router.delete('/:cardId', express.json(), celebrate({
   params: Joi.object().keys({
-    _id: Joi.objectId().required(),
+    cardId: Joi.objectId(),
   }),
 }), removeCard);
 router.put('/:cardId/likes', express.json(), celebrate({
   params: Joi.object().keys({
-    cardId: Joi.objectId().required(),
+    cardId: Joi.objectId(),
   }),
 }), likeCard);
 router.delete('/:cardId/likes', express.json(), celebrate({
   params: Joi.object().keys({
-    cardId: Joi.objectId().required(),
+    cardId: Joi.objectId(),
   }),
 }), dislikeCard);
 
