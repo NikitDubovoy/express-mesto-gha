@@ -1,10 +1,8 @@
 const Card = require('../models/card');
-const {
-  IsNotFound,
-  IsCastError,
-  IsServerError,
-  InvalidRemove,
-} = require('../utils/utils');
+const IsNotFound = require('../errors/IsNotFound');
+const IsCastError = require('../errors/IsCastError');
+const IsServerError = require('../errors/IsServerError');
+const InvalidRemove = require('../errors/InvalidRemove');
 
 // const isLinkCard = (link) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(link);
 
@@ -40,20 +38,17 @@ const removeCard = (req, res, next) => {
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
         next(new InvalidRemove('Карточка не была создана текущим пользователем'));
+        return;
       }
-      if (card) {
-        card.remove()
-          .then((dataCard) => {
-            res.status(200).send(dataCard);
-          })
-          .catch(() => {
-            next(new IsServerError('Ошибка сервера'));
-          });
-      }
+      card.remove()
+        .then((dataCard) => {
+          res.status(200).send(dataCard);
+        })
+        .catch(() => {
+          next(new IsServerError('Ошибка сервера'));
+        });
     })
-    .catch(() => {
-      next(new IsServerError('Ошибка сервера'));
-    });
+    .catch(next);
 };
 
 const likeCard = (req, res, next) => {

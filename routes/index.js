@@ -1,11 +1,10 @@
 const router = require('express').Router();
 const express = require('express');
-const cookieParser = require('cookie-parser');
 
-const { celebrate, Joi, errors } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
-const Error = require('../utils/utils');
+const IsNotFound = require('../errors/IsNotFound');
 const { login, createdUser } = require('../controllers/users');
 const auth = require('../middlewares/auth');
 
@@ -24,13 +23,11 @@ router.post('/signup', express.json(), celebrate({
     avatar: Joi.string().pattern(/https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i),
   }),
 }), createdUser);
-router.use(cookieParser());
 router.use(auth, express.json());
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
-router.use(errors());
-router.use((req, res) => {
-  Error.isNotFound(res);
+router.use((req, res, next) => {
+  next(new IsNotFound('Страница не найдена'));
 });
 
 module.exports = router;

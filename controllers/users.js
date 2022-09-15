@@ -2,47 +2,38 @@ const bcrypt = require('bcryptjs');
 // const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  IsNotFound,
-  IsCastError,
-  IsServerError,
-  InvalidPassword,
-  InvalidAvatar,
-  IsEmail,
-  InvalidData,
-} = require('../utils/utils');
+const IsNotFound = require('../errors/IsNotFound');
+const IsCastError = require('../errors/IsCastError');
+const IsServerError = require('../errors/IsServerError');
+const IsEmail = require('../errors/IsEmail');
+const InvalidData = require('../errors/InvalidData');
 
-const isAvatarValidator = (avatar) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(avatar);
+// eslint-disable-next-line max-len
+// const isAvatarValidator = (avatar) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(avatar);
 
 const createdUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  if (!isAvatarValidator(avatar)) {
-    next(new InvalidAvatar('Некорректная ссылка на аватар'));
-  } else if (!password) {
-    next(new InvalidPassword('Некорректный пароль'));
-  } else {
-    bcrypt.hash(password, 10)
-      .then((hashPassword) => {
-        User.create({
-          name, about, avatar, email, password: hashPassword,
-        })
-          .then((user) => res.status(200).send(user))
-          .catch((e) => {
-            if (e.name === 'ValidationError') {
-              next(new IsCastError('Неверные данные'));
-            } else if (e.code === 11000) {
-              next(new IsEmail('Пользователь с таким Email сущствует'));
-            } else {
-              next(e);
-            }
-          });
+  bcrypt.hash(password, 10)
+    .then((hashPassword) => {
+      User.create({
+        name, about, avatar, email, password: hashPassword,
       })
-      .catch(() => {
-        next(new IsServerError('Ошибка сервера'));
-      });
-  }
+        .then((user) => res.status(200).send(user))
+        .catch((e) => {
+          if (e.name === 'ValidationError') {
+            next(new IsCastError('Неверные данные'));
+          } else if (e.code === 11000) {
+            next(new IsEmail('Пользователь с таким Email сущствует'));
+          } else {
+            next(e);
+          }
+        });
+    })
+    .catch(() => {
+      next(new IsServerError('Ошибка сервера'));
+    });
 };
 
 function getUsers(req, res, next) {
@@ -146,9 +137,7 @@ const login = (req, res, next) => {
             next(new InvalidData('Неверные данные'));
           }
         })
-        .catch(() => {
-          next(new InvalidPassword('Неерные пароль'));
-        });
+        .catch(next);
     });
 };
 
