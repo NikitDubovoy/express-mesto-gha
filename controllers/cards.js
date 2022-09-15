@@ -4,8 +4,6 @@ const IsCastError = require('../errors/IsCastError');
 const IsServerError = require('../errors/IsServerError');
 const InvalidRemove = require('../errors/InvalidRemove');
 
-// const isLinkCard = (link) => /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i.test(link);
-
 const createdCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })

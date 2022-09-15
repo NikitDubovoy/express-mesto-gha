@@ -44,7 +44,7 @@ function getUsers(req, res, next) {
 
 function getThisUser(req, res, next) {
   const { _id } = req.user;
-  User.find({ _id })
+  User.findById({ _id })
     .then((user) => res.status(200).send(user))
     .catch(() => next(new IsServerError('Ошибка сервера')));
 }
@@ -138,7 +138,8 @@ const login = (req, res, next) => {
           }
         })
         .catch(next);
-    });
+    })
+    .catch(next);
 };
 
 module.exports = {
