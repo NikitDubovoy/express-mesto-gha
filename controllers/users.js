@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 // const validator = require('validator');
+const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const IsNotFound = require('../errors/IsNotFound');
@@ -126,7 +127,7 @@ const login = (req, res, next) => {
           if (isUserValid) {
             const token = jwt.sign({
               _id: user._id,
-            }, 'some-secret-key');
+            }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
             res.cookie('jwt', token, {
               maxAge: 604800,
               httpOnly: true,
@@ -151,3 +152,16 @@ module.exports = {
   login,
   getThisUser,
 };
+
+/* bcrypt.compare(password, user.password)
+.then((isUserValid) => {
+  if (isUserValid) {
+    const token = jwt.sign({
+      _id: user._id,
+    }, 'some-secret-key');
+    res.cookie('jwt', token, {
+      maxAge: 604800,
+      httpOnly: true,
+      sameSite: true,
+    });
+    res.status(200).send(user); */
