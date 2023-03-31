@@ -1,27 +1,52 @@
-[![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
+# Movies
 
-# Проект Mesto фронтенд + бэкенд
+## О проекте
 
-## Настройка бейджей статуса тестов
+"Movies" - это интерактивный сайт для поиска и просмотра фильмов. С помощью этого сайта пользователи могут искать фильмы, просматривать информацию о них и сохранять понравившиеся фильмы в своем личном кабинете. Данный проект был выполнен в рамках дипломной работы в Яндекс.Практикуме.
 
-Перед началом работы над проектом рекомендуется исправить бейджи, отражающие статус прохождения тестов.
-Для этого замените разметку бейджей на следующий фрагмент, подставив вместо `${имя_пользователя}` и `${имя_репозитория}` соответствующие значения.
+## Функциональность
 
-```
-[![Tests for sprint 13](https://github.com/NikitDubovoy/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/NikitDubovoy/express-mesto-gha/actions/workflows/tests-13-sprint.yml)
+Сайт предоставляет следующий функционал:
 
-[![Tests for sprint 14](https://github.com/NikitDubovoy/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/NikitDubovoy/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
-```
+- Регистрация и авторизация пользователей
+- Поиск фильмов по ключевым словам
+- Отображение информации о фильмах
+- Сохранение понравившихся фильмов в своем личном кабинете
+- Удаление фильмов из личного кабинета
+- Редактирование профиля пользователя
+- Валидация форм
+- Адаптивная вёрстка
 
-## Директории
+## Технологии
 
-`/routes` — папка с файлами роутера  
-`/controllers` — папка с файлами контроллеров пользователя и карточки  
-`/models` — папка с файлами описания схем пользователя и карточки
+- HTML5
+- CSS3
+- JavaScript (ES6)
+- React (Create React App)
+- Node.js
+- Express.js
+- MongoDB
 
-Остальные директории вспомогательные, создаются при необходимости разработчиком
+## Установка и запуск проекта
 
-## Запуск проекта
+1. Склонируйте репозиторий на свой компьютер:  
 
-`npm run start` — запускает сервер  
-`npm run dev` — запускает сервер с hot-reload
+```git clone https://github.com/NikitDubovoy/express-mesto-gha.git```
+
+2.Установите зависимости для серверной части:  
+```cd movies```  
+```npm install```
+
+3. Установите зависимости для клиентской части:  
+```npm run start```  
+
+5. Запустите клиентскую часть:  
+```cd client```  
+```npm run start```  
+
+6.  Откройте приложение в браузере по адресу:  
+[http://localhost:3000](http://localhost:3000)  
+
+## API
+
+Для проекта было разработано API для работы с фильмами и пользователями.
